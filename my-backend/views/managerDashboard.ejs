@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manager Dashboard</title>
+</head>
+<body>
+    <h2>Pending Expenses</h2>
+    <table border="1">
+        <tr><th>User</th><th>Amount</th><th>Category</th><th>Description</th><th>Date</th><th>Action</th></tr>
+        <% expenses.forEach(e => { %>
+        <tr>
+            <td><%= e.name %></td>
+            <td><%= e.amount %></td>
+            <td><%= e.category %></td>
+            <td><%= e.description %></td>
+            <td><%= e.date %></td>
+            <td>
+                <form method="POST" action="/expenses/approve/<%= e.id %>" style="display:inline">
+                    <button type="submit">Approve</button>
+                </form>
+                <form method="POST" action="/expenses/reject/<%= e.id %>" style="display:inline">
+                    <button type="submit">Reject</button>
+                </form>
+            </td>
+        </tr>
+        <% }) %>
+    </table>
+    <a href="/logout">Logout</a>
+</body>
+</html>

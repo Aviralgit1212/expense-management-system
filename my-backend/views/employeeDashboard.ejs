@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f3f4f6; margin: 0; padding: 0; }
+        .dashboard { display: flex; max-width: 1200px; margin: 32px auto; gap: 32px; }
+        .left-panel { flex: 1.2; background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); padding: 28px 18px 32px 18px; }
+        .right-panel { flex: 1; background: #fff; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); padding: 28px 18px 32px 18px; min-width: 340px;}
+        .summary { display: flex; gap: 18px; margin-bottom: 18px; }
+        .summary-box { background: #f1f5f9; border-radius: 8px; padding: 14px 18px; min-width: 120px; text-align: center; }
+        .summary-box .label { font-size: 13px; color: #64748b; }
+        .summary-box .value { font-size: 18px; font-weight: 700; }
+        .new-expense-btn { background: #4f46e5; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 16px; float: right;}
+        .new-expense-btn:hover { background: #4338ca; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        th, td { padding: 10px 8px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        th { background: #f3f4f6; color: #4f46e5; font-weight: 600; }
+        .status-pill { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600; }
+        .status-draft { background: #fef9c3; color: #b45309; }
+        .status-waiting { background: #fef3c7; color: #d97706; }
+        .status-approved { background: #d1fae5; color: #059669; }
+        .status-rejected, .status-cancelled { background: #fee2e2; color: #dc2626; }
+        .action-btn { background: #4f46e5; color: #fff; border: none; border-radius: 6px; padding: 5px 12px; font-size: 0.95rem; font-weight: 500; cursor: pointer; margin-right: 6px; transition: background 0.2s; }
+        .action-btn.cancel { background: #ef4444; }
+        .action-btn:disabled { background: #d1d5db; color: #888; cursor: not-allowed; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+        .tab { flex: 1; text-align: center; padding: 10px; border-radius: 8px; background: #f3f4f6; color: #4f46e5; font-weight: 600; cursor: pointer; }
+        .tab.active { background: #4f46e5; color: #fff; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 14px; color: #475569; }
+        .form-control, select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #e5e7eb; font-size: 1rem; }
+        .form-control:disabled { background: #f1f5f9; }
+        .receipt-btn { background: #6366f1; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 16px; }
+        .receipt-btn:hover { background: #4338ca; }
+        .approval-history { margin-top: 24px; }
+        .approval-history table { width: 100%; }
+        .approval-history th, .approval-history td { font-size: 14px; }
+        .approval-history th { background: #f3f4f6; }
+        .approval-history td { background: #f9fafb; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.25); justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: #fff; border-radius: 12px; padding: 32px 24px; min-width: 320px; max-width: 95vw; }
+        .close-modal { float: right; font-size: 22px; color: #888; cursor: pointer; }
+        .error-msg { color: #dc2626; margin-bottom: 10px; }
+        @media (max-width: 900px) {
+            .dashboard { flex-direction: column; gap: 0; }
+            .left-panel, .right-panel { margin-bottom: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Left Panel: Expense Summary & Table -->
+        <div class="left-panel">
+            <button class="new-expense-btn" onclick="openExpenseModal()">+ New Expense</button>
+            <div class="summary">
+                <div class="summary-box">
+                    <div class="label">Draft</div>
+                    <div class="value" id="sum-draft">0</div>
+                </div>
+                <div class="summary-box">
+                    <div class="label">Waiting Approval</div>
+                    <div class="value" id="sum-waiting">0</div>
+                </div>
+                <div class="summary-box">
+                    <div class="label">Approved</div>
+                    <div class="value" id="sum-approved">0</div>
+                </div>
+            </div>
+            <table>
+                <tr>
+                    <th>Employee</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Paid By</th>
+                    <th>Remarks</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                <% expenses.forEach(e => { %>
+                <tr>
+                    <td><%= user.name %></td>
+                    <td><%= e.description %></td>
+                    <td><%= e.category %></td>
+                    <td><%= e.paid_by %></td>
+                    <td><%= e.remarks %></td>
+                    <td><%= e.amount %> <%= e.currency %></td>
+                    <td>
+                        <span class="status-pill status-<%= e.status.replace(' ','-') %>">
+                            <%= e.status.charAt(0).toUpperCase() + e.status.slice(1) %>
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn" onclick="viewExpense('<%= e.id %>')" <%= e.status === 'waiting approval' || e.status === 'approved' ? 'disabled' : '' %> title="View">View</button>
+                        <% if (e.status === 'draft' || e.status === 'rejected') { %>
+                            <button class="action-btn" onclick="editExpense('<%= e.id %>')" title="Edit">Edit</button>
+                        <% } %>
+                        <% if (e.status === 'submitted' || e.status === 'waiting approval') { %>
+                            <form method="POST" action="/expenses/cancel/<%= e.id %>" style="display:inline" onsubmit="return confirm('Cancel this expense?');">
+                                <button type="submit" class="action-btn cancel" title="Cancel">Cancel</button>
+                            </form>
+                        <% } %>
+                    </td>
+                </tr>
+                <% }) %>
+            </table>
+        </div>
+        <!-- Right Panel: Expense Form -->
+        <div class="right-panel" id="rightPanel">
+            <div class="tabs">
+                <div class="tab active" id="tab-draft">Draft</div>
+                <div class="tab" id="tab-waiting">Waiting approval</div>
+                <div class="tab" id="tab-approved">Approved</div>
+            </div>
+            <button class="receipt-btn" onclick="document.getElementById('receiptInput').click()">Attach Receipt</button>
+            <input type="file" id="receiptInput" accept="image/*" style="display:none" onchange="handleReceiptUpload(event)">
+            <form id="expenseForm" method="POST" action="/expenses/submit">
+                <div class="form-group">
+                    <label>Description</label>
+                    <input name="description" id="desc" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input name="date" id="date" type="date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category" id="category" class="form-control" required>
+                        <option value="">Select</option>
+                        <option value="Food">Food</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Accommodation">Accommodation</option>
+                        <option value="Miscellaneous">Miscellaneous</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Paid By</label>
+                    <select name="paid_by" id="paid_by" class="form-control" required>
+                        <option value="">Select</option>
+                        <option value="Company Card">Company Card</option>
+                        <option value="Personal Card">Personal Card</option>
+                        <option value="Cash">Cash</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Total Amount</label>
+                    <input name="amount" id="amount" type="number" step="0.01" class="form-control" required>
+                    <select name="currency" id="currency" class="form-control" style="margin-top:6px;" required>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                        <option value="INR">INR</option>
+                        <option value="JPY">JPY</option>
+                        <option value="CAD">CAD</option>
+                        <option value="AUD">AUD</option>
+                        <option value="BRL">BRL</option>
+                        <option value="ZAR">ZAR</option>
+                    </select>
+                    <div style="font-size:12px;color:#64748b;margin-top:4px;">
+                        In manager's approval dashboard, the amount will be auto-converted to base currency with real-time rates.
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Remarks</label>
+                    <textarea name="remarks" id="remarks" class="form-control"></textarea>
+                </div>
+                <button type="submit" class="action-btn" id="submitBtn">Submit</button>
+            </form>
+            <div class="approval-history">
+                <h4>Approval History</h4>
+                <table>
+                    <tr><th>Approver</th><th>Status</th><th>Time</th></tr>
+                    <tbody id="approvalHistoryBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Modal for new/edit expense -->
+    <div class="modal" id="expenseModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeExpenseModal()">&times;</span>
+            <h3 id="modalTitle">New Expense</h3>
+            <form id="modalExpenseForm">
+                <div class="form-group">
+                    <label>Description</label>
+                    <input name="description" id="modalDesc" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input name="date" id="modalDate" type="date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select name="category" id="modalCategory" class="form-control" required>
+                        <option value="">Select</option>
+                        <option value="Food">Food</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Accommodation">Accommodation</option>
+                        <option value="Miscellaneous">Miscellaneous</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Paid By</label>
+                    <select name="paid_by" id="modalPaidBy" class="form-control" required>
+                        <option value="">Select</option>
+                        <option value="Company Card">Company Card</option>
+                        <option value="Personal Card">Personal Card</option>
+                        <option value="Cash">Cash</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Total Amount</label>
+                    <input name="amount" id="modalAmount" type="number" step="0.01" class="form-control" required>
+                    <select name="currency" id="modalCurrency" class="form-control" style="margin-top:6px;" required>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                        <option value="INR">INR</option>
+                        <option value="JPY">JPY</option>
+                        <option value="CAD">CAD</option>
+                        <option value="AUD">AUD</option>
+                        <option value="BRL">BRL</option>
+                        <option value="ZAR">ZAR</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Remarks</label>
+                    <textarea name="remarks" id="modalRemarks" class="form-control"></textarea>
+                </div>
+                <div class="error-msg" id="modalError"></div>
+                <button type="submit" class="action-btn" id="modalSubmitBtn">Save</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Fetch and update summary
+        fetch('/expenses/employee/summary').then(res => res.json()).then(data => {
+            document.getElementById('sum-draft').innerText = data.draft;
+            document.getElementById('sum-waiting').innerText = data.waiting;
+            document.getElementById('sum-approved').innerText = data.approved;
+        });
+
+        // OCR receipt upload
+        function handleReceiptUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('receipt', file);
+            fetch('/expenses/ocr-receipt', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.amount) document.getElementById('amount').value = data.amount;
+                if (data.date) document.getElementById('date').value = data.date;
+                if (data.description) document.getElementById('desc').value = data.description;
+            });
+        }
+
+        // Modal logic for new/edit expense
+        function openExpenseModal(expense) {
+            document.getElementById('expenseModal').classList.add('active');
+            document.getElementById('modalTitle').innerText = expense ? 'Edit Expense' : 'New Expense';
+            document.getElementById('modalError').innerText = '';
+            if (expense) {
+                document.getElementById('modalDesc').value = expense.description || '';
+                document.getElementById('modalDate').value = expense.date || '';
+                document.getElementById('modalCategory').value = expense.category || '';
+                document.getElementById('modalPaidBy').value = expense.paid_by || '';
+                document.getElementById('modalAmount').value = expense.amount || '';
+                document.getElementById('modalCurrency').value = expense.currency || 'USD';
+                document.getElementById('modalRemarks').value = expense.remarks || '';
+            } else {
+                document.getElementById('modalDesc').value = '';
+                document.getElementById('modalDate').value = '';
+                document.getElementById('modalCategory').value = '';
+                document.getElementById('modalPaidBy').value = '';
+                document.getElementById('modalAmount').value = '';
+                document.getElementById('modalCurrency').value = 'USD';
+                document.getElementById('modalRemarks').value = '';
+            }
+        }
+        function closeExpenseModal() {
+            document.getElementById('expenseModal').classList.remove('active');
+        }
+        document.getElementById('modalExpenseForm').onsubmit = function(e) {
+            e.preventDefault();
+            // Validate and send AJAX to create/edit expense
+            // Show error in #modalError if needed
+            closeExpenseModal();
+        };
+
+        // Approval history (stub, replace with real fetch if needed)
+        function loadApprovalHistory(expenseId) {
+            // Fetch approval history for expenseId and update #approvalHistoryBody
+        }
+
+        // View/Edit expense logic (stub)
+        function viewExpense(id) {
+            // Load expense details into form, set form to read-only if not editable
+        }
+        function editExpense(id) {
+            // Load expense details into form, allow editing
+            // openExpenseModal(expense);
+        }
+    </script>
+</body>
+</html>

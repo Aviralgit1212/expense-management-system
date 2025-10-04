@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Expense Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #4f46e5, #3b82f6, #06b6d4);
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-header {
+            text-align: center;
+            padding: 40px 40px 30px 40px;
+            background-color: #f8fafc;
+        }
+
+        .auth-header h1 {
+            color: #4f46e5;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .auth-header p {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: #f8fafc;
+            padding: 0 8px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 16px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px 10px 0 0;
+            margin: 0 4px;
+        }
+
+        .tab.active {
+            color: white;
+            background-color: #4f46e5;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px 40px 40px 40px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 40px;
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .auth-footer p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .auth-footer a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .auth-footer a:hover {
+            color: #4338ca;
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .auth-container {
+                border-radius: 12px;
+            }
+
+            .auth-header {
+                padding: 30px 25px 20px 25px;
+            }
+
+            .tab-content {
+                padding: 25px 25px 35px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>Expense Management System</h1>
+            <p>Admin Portal - Company Setup</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('login', this)">Login</button>
+            <button class="tab" onclick="switchTab('signup', this)">Signup</button>
+        </div>
+
+        <div id="login" class="tab-content active">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+                <button type="submit" class="btn-primary">Login</button>
+            </form>
+
+            <div class="auth-footer">
+                <p><a href="#" id="forgotPassword">Forgot password?</a></p>
+                <p>Don't have an account? <a href="#" onclick="switchToSignup()">Signup</a></p>
+            </div>
+        </div>
+
+        <div id="signup" class="tab-content">
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" class="form-control" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" class="form-control" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" class="form-control" placeholder="Create a password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('signupPassword')">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <select id="country" class="form-control" required>
+                        <option value="">Select your country</option>
+                        <option value="US">United States</option>
+                        <option value="CA">Canada</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="AU">Australia</option>
+                        <option value="DE">Germany</option>
+                        <option value="FR">France</option>
+                        <option value="JP">Japan</option>
+                        <option value="IN">India</option>
+                        <option value="BR">Brazil</option>
+                        <option value="ZA">South Africa</option>
+                        <!-- Additional countries would be added in a real implementation -->
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="#" onclick="switchToLogin()">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Country to currency mapping (simplified)
+        const countryCurrencyMap = {
+            'US': 'USD',
+            'CA': 'CAD',
+            'GB': 'GBP',
+            'AU': 'AUD',
+            'DE': 'EUR',
+            'FR': 'EUR',
+            'JP': 'JPY',
+            'IN': 'INR',
+            'BR': 'BRL',
+            'ZA': 'ZAR'
+        };
+
+        function switchTab(tabName, btn) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show the selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Activate the clicked tab
+            if (btn) btn.classList.add('active');
+        }
+
+        function switchToSignup() {
+            const btn = document.querySelector('.tab[onclick*="signup"]');
+            switchTab('signup', btn);
+        }
+
+        function switchToLogin() {
+            const btn = document.querySelector('.tab[onclick*="login"]');
+            switchTab('login', btn);
+        }
+
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = passwordInput.nextElementSibling.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Form submission handlers
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            if (res.redirected) {
+                window.location.href = res.url;
+            } else if (res.ok) {
+                window.location.href = '/dashboard'; // or wherever you want
+            } else {
+                const text = await res.text();
+                alert(text || 'Login failed');
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get selected country and currency
+            const countrySelect = document.getElementById('country');
+            const selectedCountry = countrySelect.value;
+            const selectedCurrency = countryCurrencyMap[selectedCountry] || 'USD';
+            
+            // Validate passwords match
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            // Add your signup logic here
+            alert(`Signup submitted! Country: ${selectedCountry}, Currency: ${selectedCurrency}`);
+        });
+
+        // Forgot password handler
+        document.getElementById('forgotPassword').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Password reset functionality would be implemented here');
+        });
+    </script>
+</body>
+</html>

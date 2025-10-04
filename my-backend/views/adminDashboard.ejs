@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Devoura</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background: #f3f4f6;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #4f46e5;
+            color: #fff;
+            padding: 24px 0 16px 0;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(79,70,229,0.08);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+        nav {
+            background: #6366f1;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav a {
+            color: #fff;
+            margin: 0 18px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+        nav a:hover {
+            color: #ffcd38;
+        }
+        .container {
+            max-width: 900px;
+            margin: 32px auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            padding: 32px 28px 40px 28px;
+        }
+        .section-title {
+            color: #4f46e5;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        form.add-user-form {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+            align-items: flex-end;
+        }
+        form.add-user-form input,
+        form.add-user-form select {
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #f8fafc;
+            min-width: 160px;
+        }
+        form.add-user-form button {
+            background: #4f46e5;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        form.add-user-form button:hover {
+            background: #4338ca;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        th {
+            background: #f3f4f6;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        td form {
+            display: inline;
+        }
+        .role-select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+            font-size: 1rem;
+        }
+        .action-btn {
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-left: 6px;
+            transition: background 0.2s;
+        }
+        .action-btn:hover {
+            background: #b91c1c;
+        }
+        .update-btn {
+            background: #10b981;
+            margin-left: 0;
+        }
+        .update-btn:hover {
+            background: #047857;
+        }
+        .logout-link {
+            display: inline-block;
+            margin-top: 18px;
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .logout-link:hover {
+            color: #4338ca;
+            text-decoration: underline;
+        }
+        @media (max-width: 700px) {
+            .container {
+                padding: 18px 4vw 24px 4vw;
+            }
+            form.add-user-form {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
+    <nav>
+        <a href="/admin/dashboard">Users</a>
+        <a href="/admin/expenses">All Expenses</a>
+        <a class="logout-link" href="/logout">Logout</a>
+    </nav>
+    <div class="container">
+        <div>
+            <div class="section-title">Add New User</div>
+            <% if (error) { %>
+                <div style="color:red;margin-bottom:10px;"><%= error %></div>
+            <% } %>
+            <form class="add-user-form" method="POST" action="/admin/add-user">
+                <input name="name" placeholder="Full Name" required />
+                <input name="email" type="email" placeholder="Email" required />
+                <input name="password" type="password" placeholder="Password (min 4 chars)" required />
+                <input name="phone" type="tel" placeholder="Phone Number" required />
+                <select name="country" required>
+                    <option value="">Country</option>
+                    <option value="US">United States</option>
+                    <option value="CA">Canada</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="JP">Japan</option>
+                    <option value="IN">India</option>
+                    <option value="BR">Brazil</option>
+                    <option value="ZA">South Africa</option>
+                </select>
+                <select name="role" required>
+                    <option value="employee">Employee</option>
+                    <option value="manager">Manager</option>
+                </select>
+                <button type="submit">Add User</button>
+            </form>
+        </div>
+        <div>
+            <div class="section-title">All Users</div>
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Country</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+                <% users.forEach(u => { %>
+                <tr>
+                    <td><%= u.name %></td>
+                    <td><%= u.email %></td>
+                    <td><%= u.country || '-' %></td>
+                    <td><%= u.phone || '-' %></td>
+                    <td>
+                        <form method="POST" action="/admin/update-role/<%= u.id %>">
+                            <select name="role" class="role-select">
+                                <option value="employee" <%= u.role==='employee'?'selected':'' %>>Employee</option>
+                                <option value="manager" <%= u.role==='manager'?'selected':'' %>>Manager</option>
+                                <option value="admin" <%= u.role==='admin'?'selected':'' %>>Admin</option>
+                            </select>
+                            <button type="submit" class="action-btn update-btn">Update</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="POST" action="/admin/delete-user/<%= u.id %>" style="display:inline">
+                            <button type="submit" class="action-btn">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }) %>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

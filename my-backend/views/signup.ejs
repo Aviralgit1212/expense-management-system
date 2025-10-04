@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup - Devoura</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #4f46e5, #3b82f6, #06b6d4);
+            padding: 20px;
+        }
+        .auth-container {
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .auth-header {
+            text-align: center;
+            padding: 40px 40px 30px 40px;
+            background-color: #f8fafc;
+        }
+        .auth-header h1 {
+            color: #4f46e5;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+        .auth-header p {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .admin-credentials {
+            background: #f1f5f9;
+            color: #334155;
+            border-radius: 8px;
+            padding: 10px 18px;
+            margin: 10px 30px 20px 30px;
+            font-size: 15px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+        }
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 40px;
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background-color: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 10px;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .auth-footer p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .auth-footer a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        .auth-footer a:hover {
+            color: #4338ca;
+            text-decoration: underline;
+        }
+        @media (max-width: 480px) {
+            .auth-container {
+                border-radius: 12px;
+            }
+            .auth-header {
+                padding: 30px 25px 20px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>Expense Management System</h1>
+            <p>Signup for your account</p>
+        </div>
+        <% if (error) { %>
+            <div style="color:red;text-align:center;margin-bottom:10px;"><%= error %></div>
+        <% } %>
+        <form method="POST" action="/signup" style="padding:30px 40px 40px 40px;">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input name="name" id="name" type="text" class="form-control" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input name="email" id="email" type="email" class="form-control" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input name="phone" id="phone" type="tel" class="form-control" placeholder="Enter your phone number" pattern="[0-9+\-\s]+" required>
+            </div>
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select name="country" id="country" class="form-control" required>
+                    <option value="">Select your country</option>
+                    <option value="US">United States</option>
+                    <option value="CA">Canada</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="JP">Japan</option>
+                    <option value="IN">India</option>
+                    <option value="BR">Brazil</option>
+                    <option value="ZA">South Africa</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select name="role" id="role" class="form-control" required>
+                    <option value="employee">Employee</option>
+                    <option value="manager">Manager</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input name="password" id="password" type="password" class="form-control" placeholder="Create a password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input name="confirmPassword" id="confirmPassword" type="password" class="form-control" placeholder="Confirm your password" required>
+            </div>
+            <button type="submit" class="btn-primary">Signup</button>
+        </form>
+        <div class="auth-footer">
+            <p>Already have an account? <a href="/login">Login</a></p>
+        </div>
+    </div>
+    <script>
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = passwordInput.nextElementSibling.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+        // Client-side password match validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const pw = document.getElementById('password').value;
+            const cpw = document.getElementById('confirmPassword').value;
+            if (pw !== cpw) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+            }
+        });
+    </script>
+</body>
+</html>
+                alert('Passwords do not match!');
+            }
+        });
+    </script>
+</body>
+</html>
+            }
+        });
+    </script>
+</body>
+</html>

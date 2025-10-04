@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styles for transitions */
+        #actionModal, #addExpenseForm {
+            transition: all 0.3s ease-in-out;
+        }
+        .hidden-form {
+            max-height: 0;
+            overflow: hidden;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            opacity: 0;
+        }
+    </style>
+</head>
+<!-- INSTRUCTIONS: To add your own background image, replace the URL in the style attribute of the body tag below -->
+<body class="text-gray-800" style="background-image: url("https://images.pexels.com/photos/1157255/pexels-photo-1157255.jpeg">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-6 sm:p-8">
+            <!-- Header -->
+            <div class="border-b border-gray-200 pb-4 mb-6 flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Expense Dashboard
+                    </h1>
+                    <p class="text-gray-500 mt-1 pl-11">Your submitted expenses for manager review.</p>
+                </div>
+                 <button id="toggleFormBtn" class="flex items-center gap-2 w-full sm:w-auto bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 ease-in-out">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Add Expense
+                </button>
+            </div>
+
+            <!-- Add New Expense Section -->
+            <div id="addExpenseForm" class="hidden-form mb-6 border-b pb-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">Submit an Expense</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="expCategory" class="block text-sm font-medium text-gray-700">Type of Expense</label>
+                        <select id="expCategory" name="category" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option>Travel</option>
+                            <option>Meals</option>
+                            <option>Software</option>
+                            <option>Supplies</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="expDate" class="block text-sm font-medium text-gray-700">Date of Expense</label>
+                        <input type="date" id="expDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label for="expTime" class="block text-sm font-medium text-gray-700">Time of Expense</label>
+                        <input type="time" id="expTime" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                     <div>
+                        <label for="expAmount" class="block text-sm font-medium text-gray-700">Amount</label>
+                        <input type="number" id="expAmount" placeholder="25.00" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                    <div class="md:col-span-2">
+                         <label for="expDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                         <textarea id="expDescription" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="e.g., Taxi from office to client meeting"></textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                         <label for="expReceipt" class="block text-sm font-medium text-gray-700">Upload Receipt</label>
+                         <input type="file" id="expReceipt" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"/>
+                    </div>
+                </div>
+                <div class="text-right mt-6">
+                     <button id="submitExpenseBtn" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Submit Expense</button>
+                </div>
+            </div>
+
+
+            <!-- Summary Section -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Card 1 -->
+                <div class="bg-gray-50/80 p-4 rounded-lg flex items-center gap-4">
+                    <div class="bg-blue-100 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg></div>
+                    <div>
+                        <p class="text-sm text-gray-500">Employee Name</p><p class="text-lg font-semibold text-gray-900">Jane Doe</p>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bg-gray-50/80 p-4 rounded-lg flex items-center gap-4">
+                     <div class="bg-purple-100 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A10.99 10.99 0 0012 13a10.99 10.99 0 00-3-1.197z" /></svg></div>
+                    <div>
+                        <p class="text-sm text-gray-500">Manager</p><p class="text-lg font-semibold text-gray-900">John Smith</p>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bg-gray-50/80 p-4 rounded-lg flex items-center gap-4">
+                     <div class="bg-amber-100 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+                    <div>
+                        <p class="text-sm text-gray-500">Total Pending</p><p class="text-lg font-semibold text-amber-600">₹3,735 INR</p>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="bg-gray-50/80 p-4 rounded-lg flex items-center gap-4">
+                     <div class="bg-green-100 p-2 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
+                    <div>
+                        <p class="text-sm text-gray-500">Approved This Month</p><p class="text-lg font-semibold text-green-600">₹4,587 INR</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Expense Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 expense-table">
+                    <thead class="bg-gray-50/80">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager's Remark</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Receipt</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white/80 divide-y divide-gray-200">
+                        <!-- Sample Row 1: Pending -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">Pending</span></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-10-03</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Travel</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">Taxi from office to client meeting</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 italic">-</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">₹2,085 INR</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-xl"><a href="#" title="View Receipt" class="text-gray-500 hover:text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></a></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                <button class="action-btn group" data-action="Modify" data-expense="Taxi from office to client meeting" title="Modify"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 group-hover:text-indigo-600" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg></button>
+                                <span class="text-gray-300 mx-2">|</span>
+                                <button class="action-btn group" data-action="Delete" data-expense="Taxi from office to client meeting" title="Delete"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 group-hover:text-red-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>
+                            </td>
+                        </tr>
+                        <!-- Sample Row 2: Approved -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Approved</span></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-10-01</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Meals</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">Lunch with Acme Corp team</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title="Approved - Necessary for client engagement.">Necessary for client engagement.</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">₹4,587 INR</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-xl"><a href="#" title="View Receipt" class="text-gray-500 hover:text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></a></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                               <button class="text-indigo-600 hover:text-indigo-900 text-xs">View Details</button>
+                            </td>
+                        </tr>
+                        <!-- Sample Row 3: Rejected -->
+                         <tr>
+                            <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Rejected</span></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-09-28</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Software</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title="Personal software subscription. Reason: Out of policy.">Personal software subscription</td>
+                            <td class="px-6 py-4 text-sm text-red-600 max-w-xs truncate" title="Unnecessary - Personal software is not covered by policy.">Unnecessary - Out of policy.</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">₹1,251 INR</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-xl"><a href="#" title="View Receipt" class="text-gray-500 hover:text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></a></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                <button class="text-indigo-600 hover:text-indigo-900 text-xs">View Details</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Manager Feedbacks Section -->
+            <div class="mt-10 pt-6 border-t border-gray-200">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-3 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Manager Feedbacks & Personal Experience
+                </h2>
+                <div class="space-y-6">
+                    <!-- Feedback Item 1 -->
+                    <div class="bg-gray-50/80 p-5 rounded-lg border border-gray-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-semibold text-gray-800">Re: Your recent meal expenses</h3>
+                            <p class="text-xs text-gray-500">2025-09-15</p>
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                            Hi Jane, just a reminder to keep meal expenses within the company policy of ₹1,500 per person. The last submission was a bit high. Please be mindful of this for future claims. Thanks!
+                        </p>
+                    </div>
+                    <!-- Feedback Item 2 -->
+                    <div class="bg-gray-50/80 p-5 rounded-lg border border-gray-200">
+                         <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-semibold text-gray-800">Travel claim approved</h3>
+                            <p class="text-xs text-gray-500">2025-08-22</p>
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                            Great job on the detailed breakdown for the client visit travel expenses. Everything was clear and approved without any issues. This is a perfect example of a well-submitted claim.
+                        </p>
+                    </div>
+                     <!-- Feedback Item 3 -->
+                    <div class="bg-gray-50/80 p-5 rounded-lg border border-gray-200">
+                         <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-semibold text-gray-800">Reminder: Submit receipts promptly</h3>
+                            <p class="text-xs text-gray-500">2025-07-30</p>
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                            Hi Jane, I've noticed a few of your recent expenses were submitted a couple of weeks after the purchase date. Please try to submit them within 48 hours to help us keep the books tidy. Appreciate it!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal for Actions -->
+    <div id="actionModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 h-full w-full flex items-center justify-center hidden opacity-0">
+        <div class="relative mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center justify-center gap-2" id="modalTitle">Confirm Action</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500" id="modalText">You are about to take action on an expense.</p>
+                </div>
+                <!-- Modify form will be injected here by JS -->
+                <div id="modalContent"></div>
+                <div class="items-center px-4 py-3 gap-2 flex justify-end">
+                    <button id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        Cancel
+                    </button>
+                    <button id="confirmBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-6">
+        <p class="text-sm text-black">&copy; 2025 Expense Tracker Inc. All rights reserved.</p>
+        <div class="mt-2">
+            <a href="#" class="text-sm text-black hover:text-gray-700 mx-2">Terms of Service</a>
+            <span class="text-black">|</span>
+            <a href="#" class="text-sm text-black hover:text-gray-700 mx-2">Privacy Policy</a>
+        </div>
+    </footer>
+
+
+    <script>
+        // --- Toggle Add Expense Form ---
+        const toggleFormBtn = document.getElementById('toggleFormBtn');
+        const addExpenseForm = document.getElementById('addExpenseForm');
+        
+        toggleFormBtn.addEventListener('click', () => {
+            const isHidden = addExpenseForm.classList.contains('hidden-form');
+            if (isHidden) {
+                addExpenseForm.classList.remove('hidden-form');
+                 addExpenseForm.classList.add('mt-6', 'border-t', 'pt-6');
+            } else {
+                addExpenseForm.classList.add('hidden-form');
+                addExpenseForm.classList.remove('mt-6', 'border-t', 'pt-6');
+            }
+        });
+
+        // --- Modal Logic ---
+        const modal = document.getElementById('actionModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
+        const modalContent = document.getElementById('modalContent');
+        const tableBody = document.querySelector('.expense-table tbody');
+
+        const showModal = (show) => {
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.classList.remove('opacity-0'), 20);
+            } else {
+                modal.classList.add('opacity-0');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        };
+
+        // Event Delegation for Modify/Delete buttons
+        tableBody.addEventListener('click', (event) => {
+            const target = event.target.closest('.action-btn');
+            if (!target) return;
+
+            const action = target.dataset.action;
+            const expense = target.dataset.expense;
+
+            modalContent.innerHTML = ''; // Clear previous content
+
+            if (action === 'Delete') {
+                modalTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg> Delete Expense`;
+                modalText.innerHTML = `Are you sure you want to delete the expense for:<br><strong class="font-bold">"${expense}"</strong>? This action cannot be undone.`;
+                confirmBtn.className = "px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 bg-red-600 hover:bg-red-700 focus:ring-red-500";
+                confirmBtn.textContent = 'Yes, Delete';
+            } else if (action === 'Modify') {
+                modalTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> Modify Expense`;
+                modalText.innerHTML = `You are modifying the expense for:<br><strong class="font-bold">"${expense}"</strong>`;
+                modalContent.innerHTML = `
+                    <div class="text-left mt-4 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Description</label>
+                            <input type="text" value="${expense}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700">Amount (INR)</label>
+                            <input type="number" value="2085" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
+                    </div>
+                `;
+                confirmBtn.className = "px-4 py-2 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500";
+                confirmBtn.textContent = 'Save Changes';
+            }
+            showModal(true);
+        });
+
+        cancelBtn.addEventListener('click', () => showModal(false));
+        confirmBtn.addEventListener('click', () => {
+            console.log('Action Confirmed.');
+            showModal(false);
+        });
+
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                showModal(false);
+            }
+        });
+
+        // --- Submit New Expense Logic ---
+        const submitBtn = document.getElementById('submitExpenseBtn');
+
+        submitBtn.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default form submission
+            
+            // 1. Get form values
+            const category = document.getElementById('expCategory').value;
+            const date = document.getElementById('expDate').value;
+            const amount = document.getElementById('expAmount').value;
+            const description = document.getElementById('expDescription').value;
+            const receiptFile = document.getElementById('expReceipt').files[0];
+
+            // 2. Validate
+            if (!description || !amount || !date) {
+                alert('Please fill in the Date, Amount, and Description fields.');
+                return;
+            }
+
+            // Format date for display
+            const displayDate = new Date(date + 'T00:00:00').toLocaleDateString('en-CA'); // YYYY-MM-DD
+
+            // 3. Create new table row
+            const newRow = tableBody.insertRow(0); // Insert at the top
+            newRow.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">Pending</span></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${displayDate}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${category}</td>
+                <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" title="${description}">${description}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 italic">-</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">₹${parseFloat(amount).toLocaleString('en-IN')} INR</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-xl">
+                    ${receiptFile ? `<a href="#" title="${receiptFile.name}" class="text-gray-500 hover:text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg></a>` : `<span class="text-gray-400">-</span>`}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                    <button class="action-btn group" data-action="Modify" data-expense="${description}" title="Modify"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 group-hover:text-indigo-600" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg></button>
+                    <span class="text-gray-300 mx-2">|</span>
+                    <button class="action-btn group" data-action="Delete" data-expense="${description}" title="Delete"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 group-hover:text-red-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>
+                </td>
+            `;
+
+            // 4. Reset form
+            document.getElementById('expCategory').value = 'Travel';
+            document.getElementById('expDate').value = '';
+            document.getElementById('expTime').value = '';
+            document.getElementById('expAmount').value = '';
+            document.getElementById('expDescription').value = '';
+            document.getElementById('expReceipt').value = '';
+
+            // 5. Hide form
+            addExpenseForm.classList.add('hidden-form');
+            addExpenseForm.classList.remove('mt-6', 'border-t', 'pt-6');
+        });
+    </script>
+
+</body>
+</html>
+

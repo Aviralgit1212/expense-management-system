@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -9,6 +9,7 @@ exports.getLogin = (req, res) => {
 exports.postLogin = async (req, res) => {
     const { email, password } = req.body;
     const [rows] = await db.promise().query('SELECT * FROM users WHERE email = ?', [email]);
+
     if (!rows.length) return res.render('login', { error: 'Invalid credentials' });
 
     const user = rows[0];
@@ -43,7 +44,6 @@ exports.postSignup = async (req, res) => {
             return res.render('signup', { error: 'Email already exists' });
         }
         const hashed = await bcrypt.hash(password, 10);
-        // If your users table does not have country/phone columns, remove them from the query below
         await db.promise().query(
             'INSERT INTO users (name, email, password, role, country, phone) VALUES (?, ?, ?, ?, ?, ?)',
             [name, email, hashed, role, country, phone]
@@ -54,6 +54,10 @@ exports.postSignup = async (req, res) => {
     }
 };
 
+exports.logout = (req, res) => {
+    res.clearCookie('token');
+    res.redirect('/login');
+};
 exports.logout = (req, res) => {
     res.clearCookie('token');
     res.redirect('/login');

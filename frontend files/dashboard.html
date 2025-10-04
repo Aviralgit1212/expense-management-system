@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin View - Approval Rules</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #6c757d;
+            --success: #4cc9a7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --border: #e2e8f0;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .main-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+        
+        .header-section {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 24px 30px;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .header-section h1 {
+            font-weight: 600;
+            font-size: 1.6rem;
+            margin-bottom: 5px;
+        }
+        
+        .header-section p {
+            opacity: 0.9;
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+        
+        .content-section {
+            padding: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 18px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+        
+        .info-card {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .info-text {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-bottom: 0;
+        }
+        
+        .table-container {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        
+        .approvers-table {
+            margin-bottom: 0;
+        }
+        
+        .approvers-table thead th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .approvers-table tbody td {
+            padding: 16px;
+            vertical-align: middle;
+        }
+        
+        .approvers-table tbody tr:not(:last-child) {
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .form-check-input {
+            width: 18px;
+            height: 18px;
+            margin-top: 0;
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .form-check-label {
+            margin-left: 8px;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline-primary {
+            color: var(--primary);
+            border-color: var(--primary);
+            border-radius: 8px;
+            padding: 10px 24px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .percentage-input {
+            max-width: 100px;
+            display: inline-block;
+        }
+        
+        .percentage-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .badge-active {
+            background-color: rgba(76, 201, 167, 0.15);
+            color: var(--success);
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 20px 15px;
+            }
+            
+            .content-section {
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-primary, .btn-outline-primary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-section">
+            <h1><i class="fas fa-cogs me-2"></i>Approval Rules</h1>
+            <p>Configure approval workflows for expense management</p>
+        </div>
+        
+        <div class="content-section">
+            <form>
+                <!-- Basic Information Section -->
+                <div class="mb-4">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i>Basic Information
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="user" class="form-label">User</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="user" value="Marc Johnson" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="manager" class="form-label">Manager</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                                <select class="form-select" id="manager">
+                                    <option selected>Sarah Wilson</option>
+                                    <option>Michael Brown</option>
+                                    <option>Jessica Lee</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="desc" class="form-label">Rule Description</label>
+                        <input type="text" class="form-control" id="desc" value="Approval rule for miscellaneous expenses">
+                    </div>
+                    
+                    <div class="info-card">
+                        <p class="info-text mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            This approval rule applies to all expense reports submitted by Marc Johnson that exceed $500 in value.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Manager Approval Section -->
+                <div class="mb-4">
+                    <div class="section-title">
+                        <i class="fas fa-user-check"></i>Manager Approval
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="managerApprover" checked>
+                        <label class="form-check-label" for="managerApprover">Include manager in approval workflow</label>
+                    </div>
+                    
+                    <div class="info-card">
+                        <p class="info-text mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            When enabled, approval requests will first be sent to the employee's manager before proceeding to other approvers.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Approvers Section -->
+                <div class="mb-4">
+                    <div class="section-title">
+                        <i class="fas fa-users"></i>Approvers
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table approvers-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 45%;">Approver</th>
+                                    <th style="width: 25%;">Required</th>
+                                    <th style="width: 30%;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3" style="width: 36px; height: 36px;">
+                                                <span class="text-white fw-bold">J</span>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">John Anderson</div>
+                                                <div class="text-muted small">Finance Director</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="requiredJohn" checked>
+                                            <label class="form-check-label" for="requiredJohn"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge badge-active">Active</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center me-3" style="width: 36px; height: 36px;">
+                                                <span class="text-white fw-bold">M</span>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">Mitchell Clark</div>
+                                                <div class="text-muted small">Department Head</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="requiredMitchell">
+                                            <label class="form-check-label" for="requiredMitchell"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge badge-active">Active</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center me-3" style="width: 36px; height: 36px;">
+                                                <span class="text-white fw-bold">A</span>
+                                            </div>
+                                            <div>
+                                                <div class="fw-medium">Andreas Schmidt</div>
+                                                <div class="text-muted small">Operations Manager</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="requiredAndreas">
+                                            <label class="form-check-label" for="requiredAndreas"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge badge-active">Active</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="info-card mt-3">
+                        <p class="info-text mb-2">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Required approvers must approve the request for it to proceed. If a required approver rejects the request, the expense is automatically rejected.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Approval Workflow Section -->
+                <div class="mb-4">
+                    <div class="section-title">
+                        <i class="fas fa-project-diagram"></i>Approval Workflow
+                    </div>
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="sequence" checked>
+                        <label class="form-check-label" for="sequence">Enable sequential approval</label>
+                    </div>
+                    
+                    <div class="info-card">
+                        <p class="info-text mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            When enabled, approvers will receive requests in sequence (John → Mitchell → Andreas). When disabled, all approvers receive requests simultaneously.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Approval Threshold Section -->
+                <div class="mb-4">
+                    <div class="section-title">
+                        <i class="fas fa-chart-pie"></i>Approval Threshold
+                    </div>
+                    
+                    <div class="percentage-container">
+                        <label for="minPercent" class="form-label mb-0">Minimum approval percentage:</label>
+                        <input type="number" class="form-control percentage-input" id="minPercent" min="0" max="100" value="70">
+                        <span class="fw-medium">%</span>
+                    </div>
+                    
+                    <div class="info-card">
+                        <p class="info-text mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            The percentage of approvers who must approve the request for it to be approved. Set to 0% if any single approval is sufficient.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                    <button type="button" class="btn btn-outline-primary">
+                        <i class="fas fa-file-export me-2"></i>Export to Sheets
+                    </button>
+                    <button type="button" class="btn btn-light ms-auto">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add some interactive functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle info cards when clicking on section titles
+            const sectionTitles = document.querySelectorAll('.section-title');
+            sectionTitles.forEach(title => {
+                title.addEventListener('click', function() {
+                    const content = this.nextElementSibling;
+                    if (content && content.classList.contains('info-card')) {
+                        content.style.display = content.style.display === 'none' ? 'block' : 'none';
+                    }
+                });
+            });
+            
+            // Update percentage label when slider changes
+            const percentageInput = document.getElementById('minPercent');
+            if (percentageInput) {
+                percentageInput.addEventListener('input', function() {
+                    const value = this.value;
+                    const percentageLabel = document.querySelector('.percentage-container .form-label');
+                    if (percentageLabel) {
+                        percentageLabel.textContent = `Minimum approval percentage (${value}%):`;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

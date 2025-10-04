@@ -365,28 +365,8 @@
             <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 20px;">User Role Management</h2>
             
             <div class="list-container" style="padding: 10px;">
-                <div style="font-weight: 700; color: var(--warning); margin-bottom: 15px; border-bottom: 1px solid #374151; padding-bottom: 8px;">Active Users: 4</div>
-                
-                ${[
-                    { id: 1, name: 'Jane Doe', email: 'jane@devoura.com', role: 'manager' },
-                    { id: 2, name: 'Ravi Sharma', email: 'ravi@devoura.com', role: 'employee' },
-                    { id: 3, name: 'Priya Verma', email: 'priya@devoura.com', role: 'employee' },
-                ].map(user => `
-                    <div class="list-item" style="padding: 10px;">
-                        <div style="flex-grow: 1;">
-                            <div style="font-weight: 600;">${user.name} <span style="font-size: 0.8rem; color: var(--text-muted);">(${user.email})</span></div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="status-tag" style="background-color: #374151; color: #fff; text-transform: capitalize;">${user.role}</span>
-                            <select class="modal-select" style="width: 150px; margin: 0; padding: 6px; font-size: 0.9rem;" onchange="alert('Changed ${user.name} role to ' + this.value)">
-                                <option value="employee" ${user.role === 'employee' ? 'selected' : ''}>Employee</option>
-                                <option value="manager" ${user.role === 'manager' ? 'selected' : ''}>Manager</option>
-                                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-                            </select>
-                            <button class="action-button action-reject" style="padding: 6px 10px; font-size: 0.8rem;" onclick="alert('DELETE user ${user.name}? Confirmation needed!')">Delete</button>
-                        </div>
-                    </div>
-                `).join('')}
+                <div id="active-users-count" style="font-weight: 700; color: var(--warning); margin-bottom: 15px; border-bottom: 1px solid #374151; padding-bottom: 8px;">Active Users: 0</div>
+                <div id="user-list"></div>
             </div>
 
             <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
@@ -408,16 +388,16 @@
             <form onsubmit="handlePasswordUpdate(event)">
                 <h3 style="font-size: 1.2rem; margin-bottom: 15px;">Update Password</h3>
                 <label style="display: block; margin-bottom: 5px; color: var(--text-muted);">Current Password</label>
-                <input type="password" class="modal-input" required>
+                <input type="password" class="modal-input" id="current-password" required>
                 
                 <label style="display: block; margin-bottom: 5px; color: var(--text-muted);">New Password</label>
-                <input type="password" class="modal-input" required>
+                <input type="password" class="modal-input" id="new-password" required>
                 
                 <label style="display: block; margin-bottom: 5px; color: var(--text-muted);">Confirm New Password</label>
-                <input type="password" class="modal-input" required>
+                <input type="password" class="modal-input" id="confirm-password" required>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
-                    <button type="button" onclick="alert('Logging out...')" class="action-button action-reject" style="background-color: #dc2626; color: white;">Logout</button>
+                    <button type="button" onclick="handleLogout()" class="action-button action-reject" style="background-color: #dc2626; color: white;">Logout</button>
                     <button type="submit" class="action-submit" style="padding: 10px 20px; box-shadow: none;">Save Changes</button>
                 </div>
             </form>
@@ -468,11 +448,20 @@
                 { id: 204, action: 'System Backup Complete', user: 'System', expense: 'Daily Run', timestamp: 'Yesterday' },
                 { id: 205, action: 'Expense Rejected', user: 'Manager: Jane Doe', expense: 'Mumbai Flight', timestamp: '2 days ago' },
             ],
+            users: [
+                { id: 1, name: 'Jane Doe', email: 'jane@devoura.com', role: 'manager' },
+                { id: 2, name: 'Ravi Sharma', email: 'ravi@devoura.com', role: 'employee' },
+                { id: 3, name: 'Priya Verma', email: 'priya@devoura.com', role: 'employee' },
+                { id: 4, name: 'Akash Patel', email: 'akash@devoura.com', role: 'admin' },
+            ]
         };
 
         // --- MODAL CONTROLLER ---
         function openSubmitModal() { submitModal.classList.add('open'); }
-        function openAdminModal() { adminModal.classList.add('open'); }
+        function openAdminModal() { 
+            renderUserList();
+            adminModal.classList.add('open'); 
+        }
         function openProfileModal() { profileModal.classList.add('open'); }
 
         function closeModal(event) {
@@ -489,7 +478,6 @@
             alert(`SUBMITTED: ${desc} - ₹${amount} (${category}). Reloading dashboard...`);
             document.getElementById('expense-form').reset();
             submitModal.classList.remove('open');
-            // Mock a new pending expense being added
             MOCK_DATA.employee.unshift({ id: Date.now(), description: desc, amount: parseFloat(amount), status: 'pending', date: 'Just Now', category: category, receipt: 'Pending', notes: 'New submission.' });
             setRole(currentRole); 
         }
@@ -497,6 +485,10 @@
             event.preventDefault();
             alert("Password update requested! In a real app, this sends a secure request to your Node.js backend.");
             document.getElementById('profile-modal').classList.remove('open');
+        }
+        function handleLogout() {
+            profileModal.classList.remove('open');
+            alert('Logging out...');
         }
         function openDetailModal(expenseId) {
             const expense = MOCK_DATA.employee.find(e => e.id === expenseId);
@@ -515,9 +507,45 @@
             document.getElementById('detail-modal').classList.add('open');
         }
 
+        // --- USER MANAGEMENT RENDER & CONTROLLER ---
+        function renderUserList() {
+            const userList = document.getElementById('user-list');
+            const activeUsersCount = document.getElementById('active-users-count');
+            activeUsersCount.textContent = `Active Users: ${MOCK_DATA.users.length}`;
+            userList.innerHTML = MOCK_DATA.users.map(user => `
+                <div class="list-item" style="padding: 10px;">
+                    <div style="flex-grow: 1;">
+                        <div style="font-weight: 600;">${user.name} <span style="font-size: 0.8rem; color: var(--text-muted);">(${user.email})</span></div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="status-tag" style="background-color: #374151; color: #fff; text-transform: capitalize;">${user.role}</span>
+                        <select class="modal-select" style="width: 150px; margin: 0; padding: 6px; font-size: 0.9rem;" onchange="changeUserRole(${user.id}, this.value)">
+                            <option value="employee" ${user.role === 'employee' ? 'selected' : ''}>Employee</option>
+                            <option value="manager" ${user.role === 'manager' ? 'selected' : ''}>Manager</option>
+                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                        </select>
+                        <button class="action-button action-reject" style="padding: 6px 10px; font-size: 0.8rem;" onclick="deleteUser(${user.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function changeUserRole(userId, newRole) {
+            const user = MOCK_DATA.users.find(u => u.id === userId);
+            if (user) {
+                user.role = newRole;
+                alert(`Changed ${user.name}'s role to ${newRole}`);
+                renderUserList();
+            }
+        }
+        function deleteUser(userId) {
+            const user = MOCK_DATA.users.find(u => u.id === userId);
+            if (user && confirm(`DELETE user ${user.name}? Confirmation needed!`)) {
+                MOCK_DATA.users = MOCK_DATA.users.filter(u => u.id !== userId);
+                renderUserList();
+            }
+        }
 
         // --- RENDER FUNCTIONS ---
-        
         function renderEmployeeDashboard() {
             const pendingTotal = MOCK_DATA.employee.filter(e => e.status === 'pending').reduce((sum, e) => sum + e.amount, 0);
             const approvedCount = MOCK_DATA.employee.filter(e => e.status === 'approved').length;
@@ -673,21 +701,20 @@
         }
 
         // --- CONTROLLER ---
-
         function setRole(role) {
             currentRole = role;
             currentRoleDisplay.textContent = role;
 
             roleButtons.forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`.role-button[onclick="setRole('${role}')"`).classList.add('active');
-            
-            // Clear and apply fadeIn animation
+            roleButtons.forEach(btn => {
+                if (btn.textContent.trim().toLowerCase() === role) btn.classList.add('active');
+            });
+
             dashboardDisplay.innerHTML = '';
             dashboardDisplay.style.animation = 'none'; 
-            void dashboardDisplay.offsetWidth; /* Trigger reflow */
+            void dashboardDisplay.offsetWidth;
             dashboardDisplay.style.animation = 'fadeIn 0.6s ease-out';
 
-            // Render the correct view
             if (role === 'employee') {
                 renderEmployeeDashboard();
             } else if (role === 'manager') {
@@ -697,7 +724,6 @@
             }
         }
 
-        // Initialize the first view
         document.addEventListener('DOMContentLoaded', () => {
             setRole('employee');
         });

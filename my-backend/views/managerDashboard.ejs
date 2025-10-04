@@ -2,29 +2,98 @@
 <html>
 <head>
     <title>Manager Dashboard</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #4f46e5, #3b82f6, #06b6d4);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 32px auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            padding: 32px 28px 40px 28px;
+        }
+        h2 {
+            color: #4f46e5;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        th {
+            background: #f3f4f6;
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .action-btn {
+            background: #4f46e5;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-right: 6px;
+            transition: background 0.2s;
+        }
+        .action-btn.reject {
+            background: #ef4444;
+        }
+        .action-btn:disabled {
+            background: #d1d5db;
+            color: #888;
+            cursor: not-allowed;
+        }
+        a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        a:hover {
+            color: #4338ca;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h2>Pending Expenses</h2>
-    <table border="1">
-        <tr><th>User</th><th>Amount</th><th>Category</th><th>Description</th><th>Date</th><th>Action</th></tr>
-        <% expenses.forEach(e => { %>
-        <tr>
-            <td><%= e.name %></td>
-            <td><%= e.amount %></td>
-            <td><%= e.category %></td>
-            <td><%= e.description %></td>
-            <td><%= e.date %></td>
-            <td>
-                <form method="POST" action="/expenses/approve/<%= e.id %>" style="display:inline">
-                    <button type="submit">Approve</button>
-                </form>
-                <form method="POST" action="/expenses/reject/<%= e.id %>" style="display:inline">
-                    <button type="submit">Reject</button>
-                </form>
-            </td>
-        </tr>
-        <% }) %>
-    </table>
-    <a href="/logout">Logout</a>
+    <div class="container">
+        <h2>Pending Expenses</h2>
+        <table>
+            <tr><th>User</th><th>Amount</th><th>Category</th><th>Description</th><th>Date</th><th>Action</th></tr>
+            <% expenses.forEach(e => { %>
+            <tr>
+                <td><%= e.name %></td>
+                <td><%= e.amount %></td>
+                <td><%= e.category %></td>
+                <td><%= e.description %></td>
+                <td><%= e.date %></td>
+                <td>
+                    <form method="POST" action="/expenses/approve/<%= e.id %>" style="display:inline">
+                        <button type="submit" class="action-btn">Approve</button>
+                    </form>
+                    <form method="POST" action="/expenses/reject/<%= e.id %>" style="display:inline">
+                        <button type="submit" class="action-btn reject">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            <% }) %>
+        </table>
+        <a href="/logout">Logout</a>
+    </div>
 </body>
 </html>

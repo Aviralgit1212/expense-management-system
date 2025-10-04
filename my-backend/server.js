@@ -23,6 +23,17 @@ app.use('/', require('./routes/authRoutes'));
 app.use('/admin', require('./routes/adminRoutes'));
 app.use('/expenses', require('./routes/expenseRoutes'));
 
+// Serve static HTML files for demo pages
+app.get('/expenselist', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'expenselist.html'));
+});
+app.get('/manager_approval', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'manager_approval.html'));
+});
+app.get('/profile', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
 // Seed admin user if not exists
 (async () => {
     try {
